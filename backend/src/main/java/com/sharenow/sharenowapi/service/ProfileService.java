@@ -4,6 +4,8 @@ import com.sharenow.sharenowapi.document.ProfileDocument;
 import com.sharenow.sharenowapi.dto.ProfileDTO;
 import com.sharenow.sharenowapi.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -42,22 +44,26 @@ public class ProfileService {
                 .credits(profile.getCredits())
                 .createdAt(profile.getCreatedAt())
                 .build();
+
     }
 
     public ProfileDTO updateProfile(ProfileDTO profileDTO) {
         ProfileDocument existingProfile = profileRepository.findByClerkId(profileDTO.getClerkId());
 
         if (existingProfile != null) {
-
+            //update fields if provided
             if (profileDTO.getEmail() != null && !profileDTO.getEmail().isEmpty()) {
                 existingProfile.setEmail(profileDTO.getEmail());
             }
+
             if (profileDTO.getFirstName() != null && !profileDTO.getFirstName().isEmpty()) {
                 existingProfile.setFirstName(profileDTO.getFirstName());
             }
+
             if (profileDTO.getLastName() != null && !profileDTO.getLastName().isEmpty()) {
                 existingProfile.setLastName(profileDTO.getLastName());
             }
+
             if (profileDTO.getPhotoUrl() != null && !profileDTO.getPhotoUrl().isEmpty()) {
                 existingProfile.setPhotoUrl(profileDTO.getPhotoUrl());
             }
@@ -75,7 +81,6 @@ public class ProfileService {
                     .photoUrl(existingProfile.getPhotoUrl())
                     .build();
         }
-
         return null;
     }
 
@@ -83,10 +88,20 @@ public class ProfileService {
         return profileRepository.existsByClerkId(clerkId);
     }
 
+
     public void deleteProfile(String clerkId) {
         ProfileDocument existingProfile = profileRepository.findByClerkId(clerkId);
         if (existingProfile != null) {
             profileRepository.delete(existingProfile);
         }
+    }
+
+    public ProfileDocument getCurrentProfile() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            throw new UsernameNotFoundException("User not authenticated");
+        }
+
+        String clerkId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return profileRepository.findByClerkId(clerkId);
     }
 }
