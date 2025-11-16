@@ -1,11 +1,15 @@
+import DashboardLayout from "../layout/DashboardLayout";
 import { UserButton } from "@clerk/clerk-react";
 
-function Dashboard() {
+const Dashboard = () => {
   return (
-    <div>
-      <UserButton />
-    </div>
+    <DashboardLayout activeMenu="Dashboard">
+      <h1 className="text-2xl font-semibold">Dashboard Content</h1>
+      <div className="mt-5">
+        <UserButton />
+      </div>
+    </DashboardLayout>
   );
-}
+};
 
 export default Dashboard;
